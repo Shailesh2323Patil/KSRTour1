@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KesariTours</string>
+    <string name="Rs">\u20B9</string>
+
+    <string name="no_data_found">No Data Found</string>
+    <string name="nights">Nights</string>
+    <string name="countries">Countries</string>
+    <string name="cities">Cities</string>
+    <string name="all_inclusive_price">All inclusive price | Per Person</string>
+    <string name="tour_code">TourCode</string>
+    <string name="tours_information">Tours Information</string>
+    <string name="no_internet_connection">Please Check Your Internet Connection</string>
+</resources>
