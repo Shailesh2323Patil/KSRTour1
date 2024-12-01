@@ -1,50 +1,23 @@
 package com.example.kesaritours.data.repository
 
-import com.example.kesaritours.data.local.dao.ToursDao
-import com.example.kesaritours.data.remote.ToursApi
+import com.example.kesaritours.data.source.DataSource
 import com.example.kesaritours.domain.model.Tours
 import com.example.kesaritours.domain.repository.ToursInfoRepository
-import com.example.kesaritours.util.Resource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import okio.IOException
-import retrofit2.HttpException
 
 
 class ToursInfoRepositoryImpl(
-    private val api: ToursApi,
-    private val dao: ToursDao
+    private val remoteDataSource: DataSource.Remote ,
+    private val localDataSource: DataSource.Local ,
+    private val cacheDataSource: DataSource.Cache
 ) : ToursInfoRepository {
+    override suspend fun getToursInfo(): List<Tours> {
+        var apiData = remoteDataSource.getToursInfo()
+        
+        var readyDataForInsertion = apiData.map { it.toToursEntity() }
+        var longArray = localDataSource.insertTourInformation(readyDataForInsertion)
 
-    override fun getToursInfo(): Flow<Resource<List<Tours>>> = flow {
-        emit(Resource.Loading())
+        var fetchFromLocal = localDataSource.getTourInformation()
 
-        val toursInfo: List<Tours> = dao.getToursInfo().map { it.toToursModel() }
-        emit(Resource.Success(data = toursInfo))
-
-        try {
-            val remoteData = api.getToursInfo()
-            dao.deleteTourInfo()
-            dao.insertTourInfo(remoteData.map { it.toToursEntity() })
-        }
-        catch (exception : HttpException) {
-            emit(
-                Resource.Error(
-                    message = "Oops, something went wrong!",
-                    data = null
-                )
-            )
-        }
-        catch (exception: IOException) {
-            emit(
-                Resource.Error(
-                    message = "Couldn't reach server, check your internet connection.!",
-                    data = null
-                )
-            )
-        }
-
-        val newToursInfo = dao.getToursInfo().map { it.toToursModel() }
-        emit(Resource.Success(data = newToursInfo))
+        return fetchFromLocal.map { it.toToursModel() }
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kesaritours.base.BaseViewModel
 import com.example.kesaritours.domain.usecase.ToursInfoUseCase
 import com.example.kesaritours.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,48 +20,47 @@ import javax.inject.Inject
 @HiltViewModel
 class ToursInfoViewModel @Inject constructor(
     private val toursInfoUseCase : ToursInfoUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _toursInfoFlow = mutableStateOf(ToursInfoState())
     val toursInfoState: State<ToursInfoState> = _toursInfoFlow
 
+    private val _loadingInfoFlow = mutableStateOf(LoadingInfoState())
+    val loadingInfoFlow: State<LoadingInfoState> = _loadingInfoFlow
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var fetchJob: Job? = null
-
     fun fetchToursInfoData() {
-        fetchJob?.cancel()
-        fetchJob = viewModelScope.launch {
-            toursInfoUseCase()
-                .onEach { result ->
-                    when(result) {
-                        is Resource.Success -> {
-                            _toursInfoFlow.value = _toursInfoFlow.value.copy(
-                                toursInfoItem = result.data ?: emptyList() ,
-                                isLoading = false
-                            )
-                        }
-                        is Resource.Error -> {
-                            _toursInfoFlow.value = _toursInfoFlow.value.copy(
-                                toursInfoItem = result.data ?: emptyList() ,
-                                isLoading = false
-                            )
-                            _eventFlow.emit(
-                                UiEvent.ShowSnackBar(
-                                    result.message ?: "Something Went Wrong"
-                                )
-                            )
-                        }
-                        is Resource.Loading -> {
-                            _toursInfoFlow.value = _toursInfoFlow.value.copy(
-                                toursInfoItem = emptyList() ,
-                                isLoading = true
-                            )
-                        }
-                    }
+        toursInfoUseCase.execute {
+            onLoading {
+                _loadingInfoFlow.value = _loadingInfoFlow.value.copy(
+                    isLoading = it
+                )
+            }
+            onComplete { result ->
+                _toursInfoFlow.value = _toursInfoFlow.value.copy(
+                    toursInfoItem = result
+                )
+            }
+            onCancel { result ->
+                viewModelScope.launch {
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackBar(
+                            result.message ?: "Something Went Wrong"
+                        )
+                    )
                 }
-                .launchIn(this)
+            }
+            onError { result ->
+                viewModelScope.launch {
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackBar(
+                            result.message ?: "Something Went Wrong"
+                        )
+                    )
+                }
+            }
         }
     }
 

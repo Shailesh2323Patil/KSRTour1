@@ -10,7 +10,7 @@ import com.example.kesaritours.data.local.entity.ToursEntity
 interface ToursDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTourInfo(tours: List<ToursEntity>)
+    suspend fun insertTourInfo(tours: List<ToursEntity>) : LongArray
 
     @Query("DELETE FROM ToursEntity")
     suspend fun deleteTourInfo()

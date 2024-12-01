@@ -48,7 +48,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KesariToursTheme {
-                val state = viewModel.toursInfoState.value
+                val toursInfoState = viewModel.toursInfoState.value
+                val loadingInfoState = viewModel.loadingInfoFlow.value
                 val snackBarHostState = remember { SnackbarHostState() }
                 val scope = rememberCoroutineScope()
 
@@ -99,10 +100,10 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 modifier = Modifier.fillMaxSize()
                             ) {
-                                if(state.toursInfoItem.isNotEmpty()) {
+                                if(toursInfoState.toursInfoItem.isNotEmpty()) {
                                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                        items(state.toursInfoItem.size) { position ->
-                                            var tourInfo = state.toursInfoItem[position]
+                                        items(toursInfoState.toursInfoItem.size) { position ->
+                                            var tourInfo = toursInfoState.toursInfoItem[position]
 
                                             Column(
                                                 modifier = Modifier
@@ -120,7 +121,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            if (state.isLoading) {
+                            if (loadingInfoState.isLoading) {
                                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                             }
                         }

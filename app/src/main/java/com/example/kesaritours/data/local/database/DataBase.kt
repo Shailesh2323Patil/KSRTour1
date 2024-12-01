@@ -9,7 +9,7 @@ import com.example.kesaritours.data.local.util.Converters
 
 @Database(
     entities = [ToursEntity::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(Converters::class)
 abstract class DataBase : RoomDatabase() {

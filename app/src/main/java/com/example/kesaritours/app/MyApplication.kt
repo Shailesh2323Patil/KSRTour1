@@ -1,4 +1,4 @@
-package com.example.kesaritours.util
+package com.example.kesaritours.app
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

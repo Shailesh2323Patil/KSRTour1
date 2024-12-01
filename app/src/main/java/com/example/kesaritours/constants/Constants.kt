@@ -1,4 +1,4 @@
-package com.example.kesaritours.util
+package com.example.kesaritours.constants
 
 object Constants {
     const val DATABASE_NAME = "database"

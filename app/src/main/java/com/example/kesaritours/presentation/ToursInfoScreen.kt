@@ -442,7 +442,7 @@ fun ToursInfoScreen(tourInfo : Tours) {
                                 ) {
                                     Text(
                                         modifier = Modifier,
-                                        text = ("YOU SAVE ${context.getString(R.string.Rs)}${((tourInfo.generatedCost2Day ?: 0) - (tourInfo.generatedNetCost ?: 0))}"),
+                                        text = ("YOU SAVE ${context.getString(R.string.Rs)}${(tourInfo.generatedCost2Day)}"),
                                         textAlign = TextAlign.Center,
                                         color = Color.White,
                                         fontSize = 10.sp,
